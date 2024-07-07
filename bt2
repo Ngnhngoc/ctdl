@@ -1,0 +1,228 @@
+#include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
+
+struct khoiTru
+{
+ float duongKinh;
+ float banKinh;
+ float chieuCao;
+ float theTich;
+};
+
+typedef struct khoiTru khoiTru;
+
+struct node
+{
+ khoiTru data;
+ struct node *left;
+ struct node *right;
+};
+
+typedef struct node node;
+typedef node* tree;
+
+void khoiTao(tree &t)
+{
+ t = NULL;
+}
+
+void nhap(khoiTru &x)
+{
+ do
+ {
+  fflush(stdin);
+  printf("Nhap duong kinh: ");
+  scanf("%f",&x.duongKinh);
+  
+  fflush(stdin);
+  printf("Nhap chieu cao: ");
+  scanf("%f",&x.chieuCao);
+  
+  if(x.duongKinh <= 0 && x.chieuCao <= 0)
+  {
+   fflush(stdin);
+   system("cls");
+   printf("Du lieu vua nhap khong hop le , hay nhap lai.\n\n");
+  }else{
+   x.banKinh = x.duongKinh / 2;
+   x.theTich = x.banKinh*x.banKinh*3.14*x.chieuCao;
+  }
+  
+ }while(x.duongKinh <= 0 && x.chieuCao <= 0);
+}
+
+void themNodeVaoCay(tree &t, khoiTru x)
+{
+ if(t == NULL)
+ {
+  node *p = (node*)malloc(sizeof(node));
+  p -> data = x;
+  p -> left = NULL;
+  p -> right = NULL;
+  t = p;
+ }else
+ {
+  if(t -> data.theTich > x.theTich)
+  {
+   themNodeVaoCay(t -> left,x);
+  }else if(t -> data.theTich < x.theTich)
+  {
+   themNodeVaoCay(t -> right,x);
+  }
+ }
+}
+
+int stt = 1;
+
+void xuatLNR(tree t)
+{
+ if(t != NULL)
+ {
+  xuatLNR(t -> left);
+  printf("|%3d|%15.2f|%15.2f|%15.2f|%15.2f|\n",stt,t -> data.duongKinh, t -> data.banKinh, t -> data.chieuCao, t -> data.theTich);
+  printf("---------------------------------------------------------------------\n");
+  stt++;
+  
+  xuatLNR(t -> right);
+ }
+}
+
+void ghiLNR(tree t, FILE* f)
+{ 
+    if (t != NULL) 
+	{
+        ghiLNR(t->left, f);
+        fprintf(f, "%.2f,%.2f,%.2f,%.2f\n", t->data.duongKinh, t->data.banKinh, t->data.chieuCao, t->data.theTich);
+
+        ghiLNR(t->right, f);
+    }
+}
+
+void ghiFile(tree t, char* tenFile) 
+{
+    FILE *f;
+    f = fopen(tenFile, "w");
+    if (f == NULL) {
+        printf("File khong the mo.\n");
+        return;
+    }
+    ghiLNR(t,f);
+    fclose(f);
+}
+
+void docFile(tree &t, char* tenFile) 
+{
+    FILE *f;
+    f = fopen(tenFile, "r");
+    if (f == NULL) {
+        printf("File khong the mo.\n");
+        return;
+    }
+    khoiTru x;
+    while(fscanf(f, "%f,%f,%f,%f\n",&x.duongKinh,&x.banKinh,&x.chieuCao,&x.theTich) != EOF)
+	{
+        themNodeVaoCay(t,x);
+ }
+
+    fclose(f);
+}
+
+void menu(tree &t)
+{
+ while(true)
+ {
+  fflush(stdin);
+  system("cls");
+  
+  printf("1. Nhap thong tin khoi tru.\n");
+  printf("2. Xuat thong tin khoi tru.\n");
+  printf("3. Luu danh sach.\n");
+  printf("4. Mo danh sach.\n");
+  printf("0. Thoat.\n");
+  
+  int chon;
+  printf("\n\n\t\tAN PHIM CHON: ");
+  scanf("%d",&chon);
+  
+  switch(chon)
+  {
+   case 1:
+   {
+    fflush(stdin);
+    system("cls");
+    khoiTru x;
+    nhap(x);
+    themNodeVaoCay(t,x);
+    printf("\nhan phim bat ki de tiep tuc.");
+    getch();
+    break;
+   }
+   case 2:
+   {
+    fflush(stdin);
+    system("cls");
+    
+    printf("\t\tDANH SACH KHOI TRU\n\n");
+    printf("---------------------------------------------------------------------\n");
+    printf("|%3s|%15s|%15s|%15s|%15s|\n","stt","duong kinh","ban kinh","chieu cao","the tich");
+    printf("---------------------------------------------------------------------\n");
+    xuatLNR(t);
+    
+    printf("\nhan phim bat ki de tiep tuc.");
+    getch();
+    break;
+   }
+   case 3:
+   {
+    fflush(stdin);
+    system("cls");
+    
+    char tenFileGhi[50];
+    printf("Nhap ten file de luu: ");
+    gets(tenFileGhi);
+    ghiFile(t,tenFileGhi);
+    
+    printf("\nhan phim bat ki de tiep tuc.");
+    getch();
+    break;
+   }
+   case 4:
+   {
+    fflush(stdin);
+    system("cls");
+    
+    char tenFileDoc[50];
+    printf("Nhap ten file can mo: ");
+    gets(tenFileDoc);
+    
+    docFile(t,tenFileDoc);
+    
+    printf("\nhan phim bat ki de tiep tuc.");
+    getch();
+    break;
+   }
+   case 0: 
+    exit(1);
+   default:
+   {
+    fflush(stdin);
+    system("cls");
+    
+    
+    
+    printf("\nKhong co chuc nang nay , an phim bat ki de tiep tuc.");
+    getch();
+    break;
+   }
+  }
+ }
+}
+
+int main()
+{
+ tree t;
+ khoiTao(t);
+ menu(t);
+ return 0;
+}
